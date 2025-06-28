@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+api_key = os.getenv("GEMINI_API_KEY")
+
 from crewai import LLM
 from crewai import Agent
 
@@ -11,7 +13,7 @@ from tools.medical_tools import blood_test_tool, nutrition_tool, exercise_tool, 
 llm = LLM(
     model="gemini/gemini-2.0-flash",
     temperature=0.7,
-    api_key= "AIzaSyBpBpTdQvcszYR-6FkBmt8Kg3xg5peD_y4"
+    api_key= api_key
 )
 
 # creating a doctor agent

@@ -12,7 +12,7 @@ medical_crew = Crew(
     cache=True,
     max_rpm=100,
     share_crew=False,
-    verbose=True  # Changed from verbose=2 to verbose=True
+    verbose=True  
 )
 
 def run_medical_analysis(query: str, file_path: str = 'data/sample.pdf'):
@@ -41,20 +41,9 @@ def run_medical_analysis(query: str, file_path: str = 'data/sample.pdf'):
     except Exception as e:
         return f"Error running medical analysis: {str(e)}"
 
-def get_crew_usage_metrics():
-    """
-    Get usage metrics for the crew.
-    
-    Returns:
-        dict: Usage metrics
-    """
-    try:
-        return medical_crew.usage_metrics
-    except Exception as e:
-        return f"Error getting usage metrics: {str(e)}"
     
 
-if __name__ == "__main__":
-    query = "Tell me detail about the report"
-    file_path = "data/sample.pdf"  # Use relative path from the crew directory
-    print(run_medical_analysis(query, file_path))
+# if __name__ == "__main__":
+#     query = "Tell me detail about the report"
+#     file_path = "data/sample.pdf"  
+#     print(run_medical_analysis(query, file_path))

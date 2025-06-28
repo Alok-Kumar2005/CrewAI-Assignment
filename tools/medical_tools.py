@@ -131,7 +131,7 @@ class BloodTestReportTool(BaseTool):
         except Exception as e:
             return f"Error reading PDF file: {str(e)}"
 
-## Creating Nutrition Analysis Tool (keeping existing functionality)
+## Creating Nutrition Analysis Tool
 class NutritionAnalysisInput(BaseModel):
     """input schema for Nutrition analyst tool"""
     blood_report_data: str = Field(..., description="Blood report data to analyze for nutritional insights")
@@ -307,7 +307,7 @@ class NutritionAnalysisTool(BaseTool):
         except Exception as e:
             return f"Error in nutrition analysis: {str(e)}"
 
-## Creating Exercise Planning Tool (keeping existing functionality)
+## Creating Exercise Planning Tool
 class ExercisePlanningInput(BaseModel):
     """inout schema for exercise plainning tool."""
     blood_report_data: str = Field(..., description="blood report data to analyze and recomment exercise")

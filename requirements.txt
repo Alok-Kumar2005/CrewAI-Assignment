@@ -1,4 +1,3 @@
-
 crewai
 crewai-tools
 langchain
@@ -18,3 +17,8 @@ beautifulsoup4
 pytest
 black
 flake8
+sqlalchemy
+fastapi
+uvicorn
+pydantic[email]
+python-multipart
