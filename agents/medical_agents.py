@@ -9,8 +9,9 @@ from tools.medical_tools import blood_test_tool, nutrition_tool, exercise_tool, 
 
 
 llm = LLM(
-    model="groq/gemma2-9b-it",
-    temperature=0.7
+    model="gemini/gemini-2.0-flash",
+    temperature=0.7,
+    api_key= "AIzaSyBpBpTdQvcszYR-6FkBmt8Kg3xg5peD_y4"
 )
 
 # creating a doctor agent

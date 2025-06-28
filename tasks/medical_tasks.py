@@ -7,7 +7,7 @@ from tools.medical_tools import blood_test_tool, nutrition_tool, exercise_tool, 
 ## Creating a task to verify blood test report
 verification_task = Task(
     description=(
-        "Verify that the uploaded document is a legitimate blood test report. "
+        "Verify that the uploaded document is a legitimate blood test report located at {file_path}. "
         "Extract and validate key information including:\n"
         "- Patient information (if present and relevant)\n"
         "- Test dates and laboratory information\n"
@@ -32,7 +32,7 @@ verification_task = Task(
 ## Creating a task to analyze blood test results
 medical_analysis_task = Task(
     description=(
-        "Provide a comprehensive medical analysis of the blood test report to address the user's query: {query}\n"
+        "Provide a comprehensive medical analysis of the blood test report located at {file_path} to address the user's query: {query}\n"
         "Analyze the blood test parameters and provide:\n"
         "- Clinical interpretation of abnormal values\n"
         "- Potential medical significance of findings\n"
@@ -57,7 +57,7 @@ medical_analysis_task = Task(
 ## Creating a nutrition analysis task
 nutrition_analysis_task = Task(
     description=(
-        "Based on the blood test results, provide evidence-based nutritional recommendations.\n"
+        "Based on the blood test results from {file_path}, provide evidence-based nutritional recommendations.\n"
         "Analyze relevant nutritional biomarkers and provide:\n"
         "- Assessment of nutritional status based on blood parameters\n"
         "- Specific dietary recommendations to address any deficiencies or imbalances\n"
@@ -82,7 +82,7 @@ nutrition_analysis_task = Task(
 ## Creating an exercise planning task
 exercise_planning_task = Task(
     description=(
-        "Develop a safe and effective exercise plan based on the blood test results and overall health status.\n"
+        "Develop a safe and effective exercise plan based on the blood test results from {file_path} and overall health status.\n"
         "Consider relevant biomarkers that affect exercise capacity and safety:\n"
         "- Cardiovascular risk factors\n"
         "- Metabolic parameters\n"

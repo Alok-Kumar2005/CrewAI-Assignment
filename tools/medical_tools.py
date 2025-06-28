@@ -13,7 +13,7 @@ import re
 
 
 ## Serper tool for internet search
-search_tool = SerperDevTool(n=10)
+search_tool = SerperDevTool(n=3)
 
 ## PDF reader tool to read the pdf data
 class PDFReaderInput(BaseModel):

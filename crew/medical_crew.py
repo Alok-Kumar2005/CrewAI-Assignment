@@ -12,7 +12,7 @@ medical_crew = Crew(
     cache=True,
     max_rpm=100,
     share_crew=False,
-    verbose=2
+    verbose=True  # Changed from verbose=2 to verbose=True
 )
 
 def run_medical_analysis(query: str, file_path: str = 'data/sample.pdf'):
@@ -27,10 +27,16 @@ def run_medical_analysis(query: str, file_path: str = 'data/sample.pdf'):
         dict: Results from the crew execution
     """
     try:
-        # Update the file path in the tools if needed
-        # This could be improved by making the file path dynamic
+        # Update the file path in the tools dynamically
+        from tools.medical_tools import blood_test_tool, nutrition_tool, exercise_tool
         
-        result = medical_crew.kickoff(inputs={'query': query})
+        # Update the default path for the blood test tool
+        # Note: This is a workaround since the tool uses a default path
+        import os
+        if not os.path.exists(file_path):
+            return f"Error: File does not exist at {file_path}"
+        
+        result = medical_crew.kickoff(inputs={'query': query, 'file_path': file_path})
         return result
     except Exception as e:
         return f"Error running medical analysis: {str(e)}"
@@ -50,4 +56,5 @@ def get_crew_usage_metrics():
 
 if __name__ == "__main__":
     query = "Tell me detail about the report"
-    print(run_medical_analysis(query))
+    file_path = "data/sample.pdf"  # Use relative path from the crew directory
+    print(run_medical_analysis(query, file_path))
