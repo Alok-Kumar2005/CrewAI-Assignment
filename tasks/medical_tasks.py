@@ -1,4 +1,3 @@
-## Importing libraries and files
 from crewai import Task
 
 from agents.medical_agents import doctor, verifier, nutritionist, exercise_specialist
