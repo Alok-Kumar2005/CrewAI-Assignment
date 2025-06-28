@@ -1,4 +1,3 @@
-## Importing libraries and files
 import os
 import asyncio
 from dotenv import load_dotenv
@@ -7,10 +6,14 @@ load_dotenv()
 from crewai_tools import SerperDevTool
 from crewai.tools import BaseTool
 from langchain_community.document_loaders import PyPDFLoader
-from typing import Type
+from typing import Type, Dict, Optional
 from pydantic import BaseModel, Field
 import re
 
+# Database imports
+from sqlalchemy.orm import Session
+from database.models import SessionLocal, BloodTestReport
+from database.operations import update_blood_values
 
 ## Serper tool for internet search
 search_tool = SerperDevTool(n=3)
@@ -19,16 +22,72 @@ search_tool = SerperDevTool(n=3)
 class PDFReaderInput(BaseModel):
     """Input schema for PDF Reader tool."""
     path: str = Field(..., description="Path of the pdf file")
+    report_id: Optional[int] = Field(None, description="Database report ID for storing extracted values")
 
 class BloodTestReportTool(BaseTool):
     name: str = "blood_test_reader"
     description: str = "Tool to read and extract the data from the blood test PDF report"
     args_schema: Type[BaseModel] = PDFReaderInput
 
-    def _run(self, path: str = 'data/sample.pdf') -> str:
+    def _extract_blood_values(self, content: str) -> Dict:
+        """Extract blood test values from the content"""
+        values = {}
+        
+        # Extract hemoglobin
+        hb_match = re.search(r'Hemoglobin.*?(\d+\.?\d*)\s*g/dL', content, re.IGNORECASE)
+        if hb_match:
+            values['hemoglobin'] = float(hb_match.group(1))
+        
+        # Extract cholesterol values
+        total_chol_match = re.search(r'Cholesterol, Total.*?(\d+\.?\d*)\s*mg/dL', content)
+        if total_chol_match:
+            values['total_cholesterol'] = float(total_chol_match.group(1))
+            
+        hdl_match = re.search(r'HDL Cholesterol.*?(\d+\.?\d*)\s*mg/dL', content)
+        if hdl_match:
+            values['hdl_cholesterol'] = float(hdl_match.group(1))
+            
+        ldl_match = re.search(r'LDL Cholesterol.*?(\d+\.?\d*)\s*mg/dL', content)
+        if ldl_match:
+            values['ldl_cholesterol'] = float(ldl_match.group(1))
+        
+        # Extract triglycerides
+        trig_match = re.search(r'Triglycerides.*?(\d+\.?\d*)\s*mg/dL', content)
+        if trig_match:
+            values['triglycerides'] = float(trig_match.group(1))
+        
+        # Extract glucose
+        glucose_match = re.search(r'Glucose Fasting.*?(\d+\.?\d*)\s*mg/dL', content)
+        if glucose_match:
+            values['fasting_glucose'] = float(glucose_match.group(1))
+        
+        # Extract HbA1c
+        hba1c_match = re.search(r'HbA1c.*?(\d+\.?\d*)\s*%', content)
+        if hba1c_match:
+            values['hba1c'] = float(hba1c_match.group(1))
+        
+        # Extract Vitamin B12
+        b12_match = re.search(r'VITAMIN B12.*?(\d+\.?\d*)\s*pg/mL', content)
+        if b12_match:
+            values['vitamin_b12'] = float(b12_match.group(1))
+        
+        # Extract Vitamin D
+        vit_d_match = re.search(r'VITAMIN D.*?(\d+\.?\d*)\s*nmol/L', content)
+        if vit_d_match:
+            values['vitamin_d'] = float(vit_d_match.group(1))
+        
+        # Extract thyroid values
+        tsh_match = re.search(r'TSH.*?(\d+\.?\d*)\s*μIU/mL', content)
+        if tsh_match:
+            values['tsh'] = float(tsh_match.group(1))
+        
+        return values
+
+    def _run(self, path: str = 'data/sample.pdf', report_id: Optional[int] = None) -> str:
         """ Tool to read the data from the blood test PDF
         Args:
             path (str): path of the pdf file to read
+            report_id (int): Database report ID for storing extracted values
         Returns:
             str: return the blood report content
         """
@@ -56,12 +115,23 @@ class BloodTestReportTool(BaseTool):
                     
                 full_report += content + "\n\n"
             
+            # Extract blood values and save to database if report_id provided
+            if report_id:
+                try:
+                    blood_values = self._extract_blood_values(full_report)
+                    if blood_values:
+                        db = SessionLocal()
+                        update_blood_values(db, report_id, blood_values)
+                        db.close()
+                except Exception as e:
+                    print(f"Warning: Could not save blood values to database: {str(e)}")
+            
             return full_report.strip()
             
         except Exception as e:
             return f"Error reading PDF file: {str(e)}"
 
-## Creating Nutrition Analysis Tool
+## Creating Nutrition Analysis Tool (keeping existing functionality)
 class NutritionAnalysisInput(BaseModel):
     """input schema for Nutrition analyst tool"""
     blood_report_data: str = Field(..., description="Blood report data to analyze for nutritional insights")
@@ -140,7 +210,6 @@ class NutritionAnalysisTool(BaseTool):
             recommendations = []
             
             # Hemoglobin analysis (Normal: 13.0-17.0 g/dL for males)
-            ## since i don't have idea about these recommendations. so, these below function is generated by LLM
             if 'hemoglobin' in values:
                 hb = values['hemoglobin']
                 if hb < 13.0:
@@ -238,7 +307,7 @@ class NutritionAnalysisTool(BaseTool):
         except Exception as e:
             return f"Error in nutrition analysis: {str(e)}"
 
-## Creating Exercise Planning Tool
+## Creating Exercise Planning Tool (keeping existing functionality)
 class ExercisePlanningInput(BaseModel):
     """inout schema for exercise plainning tool."""
     blood_report_data: str = Field(..., description="blood report data to analyze and recomment exercise")
